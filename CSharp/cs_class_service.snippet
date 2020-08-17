@@ -19,19 +19,8 @@
           <Default>Test</Default>
         </Literal>
       </Declarations>
-      <Code Language="CSharp" Kind="file" Delimiter="%"><![CDATA[
-    /// <summary>
-    /// オプション（Serviceでこれができるか未確認）
-    /// </summary>
-    public class %Test%Option
-    {
-        // TODO:設定項目があれば作成すること
-        /// <summary>
-        /// 設定項目
-        /// </summary>
-        public string HomeDirectory { get; set; }
-    }
-    
+      <Code Language="CSharp" Kind="file" Delimiter="%">
+          <![CDATA[
     public interface I%Test%Service
     {
         /// <summary>
@@ -46,7 +35,7 @@
     {
         private readonly ILogger<%Test%Service> _logger;
         
-        public %Test%Service(ILogger<%Test%Service> logger, XxxOption options = null)
+        public %Test%Service(ILogger<%Test%Service> logger)
         {
             _logger = logger;
         }
@@ -62,14 +51,14 @@
     }
     
     // TODO:[Startup.cs]に以下3つのうち1つを追加する
-            // DIされるたびにインスタンスを生成します。
-            services.AddTransient<I%Test%Service, %Test%Service>();
-            // クライアント要求 (接続) ごとに 1 回作成されます。
-            // 複数のサービスクラスやドメインクラスでの処理を跨ってインスタンスが維持される必要がある場合に使用します。
-            services.AddScoped<I%Test%Service, %Test%Service>();
-            // 一度DIされると、アプリケーションが終了するまで、最初にDIされた値を使いまわします。
-            // アプリケーション動作内で１つのインスタンスを共有したい場合に使用します。
-            services.AddSingleton<I%Test%Service, %Test%Service>();
+      // DIされるたびにインスタンスを生成します。
+      services.AddTransient<I%Test%Service, %Test%Service>();
+      // クライアント要求 (接続) ごとに 1 回作成されます。
+      // 複数のサービスクラスやドメインクラスでの処理を跨ってインスタンスが維持される必要がある場合に使用します。
+      services.AddScoped<I%Test%Service, %Test%Service>();
+      // 一度DIされると、アプリケーションが終了するまで、最初にDIされた値を使いまわします。
+      // アプリケーション動作内で１つのインスタンスを共有したい場合に使用します。
+      services.AddSingleton<I%Test%Service, %Test%Service>();
 ]]></Code>
     </Snippet>
   </CodeSnippet>

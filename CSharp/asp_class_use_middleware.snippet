@@ -19,23 +19,12 @@
           <Default>Xxx</Default>
         </Literal>
       </Declarations>
-      <Code Language="CSharp" Kind="file" Delimiter="$"><![CDATA[using Microsoft.AspNetCore.Http;
+      <Code Language="CSharp" Kind="file" Delimiter="$">
+  <![CDATA[using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Options;
 using System.IO;
 using System.Threading.Tasks;
-
-/// <summary>
-/// Use$Xxx$時のオプション
-/// </summary>
-public class $Xxx$Option
-{
-    // TODO:設定項目があれば作成すること
-    /// <summary>
-    /// 設定項目
-    /// </summary>
-    public string HomeDirectory { get; set; }
-}
 
 /// <summary>
 /// Use$Xxx$をStartup.csで呼べるようにする拡張クラス
@@ -46,12 +35,10 @@ public static class $Xxx$MiddlewareExtensions
     /// $Xxx$を用いて、～～できるようにします。
     /// </summary>
     /// <param name="builder"></param>
-    /// <param name="options">設定項目</param>
     /// <returns></returns>
-    public static IApplicationBuilder Use$Xxx$(this IApplicationBuilder builder, $Xxx$Option options = null)
+    public static IApplicationBuilder Use$Xxx$(this IApplicationBuilder builder)
     {
-        options ??= new $Xxx$Option();
-        return builder.UseMiddleware<$Xxx$Middleware>(Options.Create(options));
+        return builder.UseMiddleware<$Xxx$Middleware>();
     }
 }
 
@@ -61,16 +48,16 @@ public static class $Xxx$MiddlewareExtensions
 public class $Xxx$Middleware
 {
     private readonly RequestDelegate _next;
-    private readonly IWebHostEnvironment _env;
+    private readonly ILogger<$Xxx$Middleware> _logger;
     private readonly $Xxx$Option _options;
 
-    // 注意！コンストラクタでシングルトンクラス（DbContextとか）のインジェクションは行わないこと
-    public $Xxx$Middleware(RequestDelegate next, IWebHostEnvironment env, IOptions<$Xxx$Option> options)
+    // 注意！コンストラクタでScopedやSingletonクラス（DbContextとか）のインジェクションは行わないこと
+    // services.ConfigureによるIOptionsはコンストラクタでインジェクションすること
+    public $Xxx$Middleware(RequestDelegate next, ILogger<$Xxx$Middleware> logger)
     {
-        // インジェクションもできます
         _next = next;    // ※これは必須
-        _env = env;
-        _options = options.Value;
+        _logger = logger;
+        // _options = options.Value;
     }
 
     public async Task InvokeAsync(HttpContext context)

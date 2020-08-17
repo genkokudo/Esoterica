@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>cs_options</Title>
+      <Author>ginpay</Author>
+      <Description>appsettings.jsonから設定項目を読み込んで、各クラスDIで使用します。</Description>
+      <HelpUrl>www.microsoft.com</HelpUrl>
+      <Shortcut>cs_options</Shortcut>
+    </Header>
+    <Snippet>
+      <Imports>
+        <Import>
+          <Namespace>Microsoft.Extensions.Options</Namespace>
+        </Import>
+      </Imports>
+      <Declarations>
+        <Literal>
+          <ID>Xxx</ID>
+          <ToolTip>設定名</ToolTip>
+          <Default>Xxx</Default>
+        </Literal>
+      </Declarations>
+      <Code Language="CSharp" Kind="file" Delimiter="$"><![CDATA[
+/// <summary>
+/// 設定項目
+/// </summary>
+public class $Xxx$Option
+{
+    // TODO:設定項目を作成すること
+    /// <summary>
+    /// 設定項目1
+    /// </summary>
+    public string HomeDirectory { get; set; }
+    
+    /// <summary>
+    /// 設定項目2
+    /// </summary>
+    public long MaxRequestBodySize { get; set; }
+}
+
+// [Startup.cs:ConfigureServices]
+// services.Configure<$Xxx$Option>(Configuration.GetSection("$Xxx$Settings"));
+
+// [appsettings.json]
+//{
+//  "$Xxx$Settings": {
+//    "HomeDirectory": "/wwwroot/files",
+//    "MaxRequestBodySize": 524288000
+//  },
+//}
+
+// [各クラスのコンストラクタ]
+// private readonly $Xxx$Option _options;
+// public Aaaa(IOptions<$Xxx$Option> options)
+// {
+//     _options = options.Value;
+// }]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>
