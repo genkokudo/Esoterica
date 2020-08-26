@@ -22,7 +22,14 @@
       </Imports>
       <Code Language="csharp" Kind="method decl" Delimiter="#"><![CDATA[
         // TODO:引数のdataJsonはこのように作成する
-        // JsonConvert.DeserializeObject<????Model>(readJson);
+        //var json = JsonConvert.SerializeObject(
+        //    任意のオブジェクト,
+        //        new JsonSerializerSettings
+        //        {
+        //            // nullならばJSONの項目にしない
+        //            NullValueHandling = NullValueHandling.Ignore
+        //        }
+        //    );
         // TODO:戻り値はこのように処理する
         // JsonConvert.DeserializeObject<????Model>(result);
         // TODO:200でない場合は例外なので以下のように処理
