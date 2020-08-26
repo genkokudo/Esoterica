@@ -5,11 +5,11 @@
       <SnippetTypes>
         <SnippetType>Expansion</SnippetType>
       </SnippetTypes>
-      <Title>cs_method_api</Title>
+      <Title>cs_method_api_get</Title>
       <Author>Y.Toyoda</Author>
       <Description>URLを指定してAPIからjson文字列を取得します。</Description>
       <HelpUrl>www.microsoft.com</HelpUrl>
-      <Shortcut>cs_method_api</Shortcut>
+      <Shortcut>cs_method_api_get</Shortcut>
     </Header>
     <Snippet>
       <Imports>
@@ -28,7 +28,7 @@
             url = url.Trim('/');
             //string url = "http://weather.livedoor.com/forecast/webservice/json/v1";
 
-            // TODO:必要なら以下のようにパラメータを付ける
+            // TODO:必要なら以下のようにURLパラメータを付ける
             //var parameters = new Dictionary<string, string>
             //{
             //    { "city", "130010" }
@@ -39,8 +39,11 @@
             //    url = $"{url}?{item.Key}={item.Value}";
             //}
 
-            string json = new HttpClient().GetStringAsync(url).Result;
+            using var client = new HttpClient();
+            string json = client.GetStringAsync(url).Result;
             return json;
+            // TODO:受け取ったJSONは任意の型のオブジェクトにデシリアライズして使用する
+            // JsonConvert.DeserializeObject<dynamic>(getstr).Message;
         }]]></Code>
     </Snippet>
   </CodeSnippet>
