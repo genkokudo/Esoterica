@@ -12,7 +12,8 @@
       <Shortcut>cs_method_automapper</Shortcut>
     </Header>
     <Snippet>
-      <Code Language="CSharp" Kind="method decl" Delimiter="$"><![CDATA[
+      <Code Language="CSharp" Kind="method decl" Delimiter="$">
+        <![CDATA[
         public class MappingProfiler : Profile
         {
             public MappingProfiler() => CreateMap<$DestClass$, $ClassName$>(MemberList.Source).ReverseMap();
@@ -31,10 +32,12 @@
         // services.AddAutoMapper(typeof(Startup)); 
 
         // IMapperをインジェクションする
-        //var entity = _mapper.Map<$ClassName$>(Filter);]]></Code>
+        //var entity = _mapper.Map<$ClassName$>(Filter);
         
         // リストや配列もマッピングできる
         // Users = _mapper.Map<SrcEntity[], DestViewModel[]>(users)
+      ]]>
+      </Code>
     </Snippet>
   </CodeSnippet>
 </CodeSnippets>

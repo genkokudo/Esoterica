@@ -17,7 +17,16 @@
           <Namespace>System</Namespace>
         </Import>
       </Imports>
-      <Code Language="CSharp" Kind="file" Delimiter="$"><![CDATA[
+      <Code Language="CSharp" Kind="file" Delimiter="$">
+      <![CDATA[
+    // 【ノート】
+    // ・どんなオブジェクトにIDisposableが必要なの？ 
+    // →そのオブジェクトが有効である間、マネージリソース（IDisposable を実装するほかのオブジェクト）を保持する場合 
+    // →そのオブジェクトが有効である間、アンマネージリソース（ファイルハンドル・ウィンドウハンドル・COM オブジェクトなど）を保持する場合 
+    // アンマネージリソースの解放は、プロパティ に null を入れることによってフラグとする方法もあります。
+    // ・GCじゃだめか？
+    // GC.Collectで任意のタイミングでGCできるが、主に特別な状況やテストで使用する。
+    
     class BaseClass : IDisposable
     {
         /// <summary>既にDisposeが呼ばれていたらtrue</summary> 

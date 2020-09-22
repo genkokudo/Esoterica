@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>cs_sample_reflection</Title>
+      <Author>Y.Toyoda</Author>
+      <Description>リフレクションのサンプル</Description>
+      <HelpUrl>www.microsoft.com</HelpUrl>
+      <Shortcut>cs_sample_reflection</Shortcut>
+    </Header>
+    <Snippet>
+      <Code Language="CSharp" Kind="file" Delimiter="$"><![CDATA[using System;
+using System.Reflection;
+
+namespace ConsoleApp1
+{
+    class ThreeValSum
+    {
+        public int Val1 { get; set; }
+        public int Val2 { get; set; }
+        public int Val3 { get; set; }
+
+        public int Sum()
+        {
+            return Val1 + Val2 + Val3;
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            // 型取得
+            Type type = Type.GetType("ConsoleApp1.ThreeValSum");
+
+            // 型が存在していたら処理する
+            if (type != null)
+            {
+                // プロパティの列挙
+                PropertyInfo[] pInfoAry = type.GetProperties();
+                int len = pInfoAry.Length;
+                Console.WriteLine("プロパティの数は" + len);
+
+                // インスタンス作成
+                var instance = Activator.CreateInstance(type, null);
+                for (int i = 0; i < len; i++)
+                {
+                    var property = instance.GetType().GetProperty(pInfoAry[i].Name);
+                    property.SetValue(instance, i + 1);
+                    Console.WriteLine(pInfoAry[i].Name + "に" + i + "を代入");
+                }
+
+                // メソッドを文字列で指定して実行
+                MethodInfo method = type.GetMethod("Sum");
+                var sum = method.Invoke(instance, null);    // 第2引数はそのメソッドの引数
+                Console.WriteLine("合計は" + sum);
+            }
+        }
+    }
+}]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>
