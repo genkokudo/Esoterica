@@ -20,10 +20,11 @@
           <Namespace>Newtonsoft.Json</Namespace>
         </Import>
       </Imports>
-      <Code Language="csharp" Kind="method decl" Delimiter="#"><![CDATA[
-        // TODO:引数のdataJsonはこのように作成する
+      <Code Language="csharp" Kind="method decl" Delimiter="#">
+          <![CDATA[
+        // TODO:引数のdataJsonはこのように作成する(AccountとPasswordを送る場合)
         //var json = JsonConvert.SerializeObject(
-        //    任意のオブジェクト,
+        //    new { UserSettings.Account, UserSettings.Password },
         //        new JsonSerializerSettings
         //        {
         //            // nullならばJSONの項目にしない
@@ -34,6 +35,36 @@
         // JsonConvert.DeserializeObject<????Model>(result);
         // TODO:200でない場合は例外なので以下のように処理
         // var message = JsonConvert.DeserializeObject<dynamic>(e.Message).Message;
+        
+
+//        // 基本的に受け取り側はデータのクラス定義が必要だと覚えればよい
+//        public class ????Model
+//        {
+//            public string Message { get; set; }
+//        }
+//        
+//        // コントローラ
+//        [AllowAnonymous]
+//        public async Task<ActionResult> OpsCoopAsync([FromBody]LoginData data)
+//        {
+//            _logger.LogInformation($"処理を開始します。");
+//            try
+//            {
+//                // TODO:処理を書くこと
+//                return Ok(new { Message = "処理が完了しました。" });    // 必要ならば????Modelクラスを定義する
+//            }
+//            catch (Exception e)
+//            {
+//                _logger.LogError($"{e.Message}\n{e.StackTrace}");
+//                return BadRequest(new { message = e.Message });		// BadRequestに任意のデータを載せられる（FetchAPIの時はなぜかできない。）
+//            }
+//        }
+//
+//        public class LoginData
+//        {
+//            public string Account { get; set; }
+//            public string Password { get; set; }
+//        }
 
         /// <summary>
         /// URLと値を指定してAPIからjson文字列を取得します
@@ -54,7 +85,10 @@
             }
             else
             {
-                throw new Exception(await response.Content.ReadAsStringAsync());
+                var resJson = await response.Content.ReadAsStringAsync();
+                var error = JsonConvert.DeserializeObject<????Model>(resJson).Message;
+                Logger.LogError(error);
+                throw new Exception(error);
             }
         }]]></Code>
     </Snippet>
