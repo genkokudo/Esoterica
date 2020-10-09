@@ -29,15 +29,15 @@
           <Default>simple-counter</Default>
         </Literal>
       </Declarations>
-      <Code Language="TypeScript" Kind="any" Delimiter="$">
+      <Code Language="TypeScript" Kind="any" Delimiter="#">
       <![CDATA[
-// -------------------- $SimpleCounter$.ts --------------------
+// -------------------- #SimpleCounter#.ts --------------------
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 // state
 // サーバのフィールドと自動マッピングされるが、対応するのはPascalとCamelだけで、途中が大文字小文字違いの単語は認識されない
 // 例：LabelとlabelはOK、YMaxとymaxはダメで、yMaxはOK
-export interface $SimpleCounter$State {
+export interface #SimpleCounter#State {
     // 表のデータ
     label: string;
     cost: number[];
@@ -45,6 +45,8 @@ export interface $SimpleCounter$State {
     // もし、interfaceの配列を使用する場合：正しく読めないことがあるので、JSON.parse(JSON.stringify(datasets))で読み直して使用すること
     datasets: Dataset[];
     paramater: string;  // 変数例
+    isEdited: boolean;  // この画面で編集していたらtrue
+    formData: FormData; // サーバ送信のためのデータ
     postTrigger: number;// この値が変化したらPostする
 }
 
@@ -58,24 +60,26 @@ interface Dataset {
 }
 
 // 初期値
-const $simpleCounter$InitialState: $SimpleCounter$State = {
+const #simpleCounter#InitialState: #SimpleCounter#State = {
     label: 'no data',
     cost: [],
     month: [],
     datasets: [],
     paramater: '',
+    formData: new FormData(),
+    isEdited: false,
     postTrigger: 0
 };
 
 // createSlice() の中では、stateの更新を行っても良い（他ではだめ）
 // 同じ画面で同じhooksを複数使用する場合、このSliceを複数にすること。同じStateを呼んでしまい、エラーになるため。
-export let $SimpleCounter$Module = createSlice({
-    name: "$simpleCounter$",
-    initialState: $simpleCounter$InitialState,
+export let #SimpleCounter#Module = createSlice({
+    name: "#simpleCounter#",
+    initialState: #simpleCounter#InitialState,
     reducers:   // 処理の定義
     {
         // Fetchしたデータをstateに反映させる
-        setData: (state, action: PayloadAction<$SimpleCounter$State>) => {
+        setData: (state, action: PayloadAction<#SimpleCounter#State>) => {
             if (action.payload) {
                 // stateの更新方法
                 
@@ -83,6 +87,8 @@ export let $SimpleCounter$Module = createSlice({
                 // できれば、Read Onlyなデータはinterfaceにして、入力データやPostデータと分けると良い
                 //state.label = action.payload.label;
                 //state.cost = action.payload.cost;
+                state.isEdited = false;
+                state.formData = new FormData();
                 
                 return action.payload;
             }
@@ -90,6 +96,7 @@ export let $SimpleCounter$Module = createSlice({
         editParamater: (state, action: PayloadAction<{ id: string, text: string }>) => {
             // state.datasets[Number(action.payload.id)].cmmpOpsHistoryFieldName = action.payload.text; // 配列の場合はこっち
             state.paramater = action.payload.text;
+            state.isEdited = true;
             return state;
         },
         // サーバに送信するためのFormData作成
@@ -98,7 +105,7 @@ export let $SimpleCounter$Module = createSlice({
             var formData = new FormData();
             state.datasets.forEach(dataset => {
                 formData.append('labels', dataset.label);
-                formData.append('borderWidths', dataset.borderWidth);
+                formData.append('borderWidths', dataset.borderWidth.toString());
                 formData.append('backgroundColors', dataset.backgroundColor);
             });
 
@@ -110,16 +117,16 @@ export let $SimpleCounter$Module = createSlice({
 });
 
 
-// -------------------- $SimpleCounter$.tsx --------------------
+// -------------------- #SimpleCounter#.tsx --------------------
 import * as React from 'react';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { $SimpleCounter$Module, $SimpleCounter$State } from '../store/$SimpleCounter$';
-import { Container, Row, Col } from 'reactstrap';
+import { #SimpleCounter#Module, #SimpleCounter#State } from '../store/#SimpleCounter#';
+import { Container, Row, Col, Button } from 'reactstrap';
 import { useFetch } from '../store/useFetch';   // react_export_usefetch
 
 // 引数の定義
-interface $SimpleCounter$Props {
+interface #SimpleCounter#Props {
     aaaa: number;
     bbbb?: string;  // 必須でない場合は?を付ける
 }
@@ -127,46 +134,46 @@ interface $SimpleCounter$Props {
 /*
  * △△画面の表示
  * ↓呼び方
- * <Route path='/$simple-counter$' render={props => <$SimpleCounter$ aaaa={34} {...props} />}/>
+ * <Route path='/#simple-counter#' render={props => <#SimpleCounter# aaaa={34} {...props} />}/>
  * ↓こっちで呼んだ場合でもpropsはnullにならず、aaaaとかがnullになってるので判定するとき注意
- * <Route path='/$simple-counter$' component={$SimpleCounter$} />
+ * <Route path='/#simple-counter#' component={#SimpleCounter#} />
  */
-const $SimpleCounter$ = (props: Partial<$SimpleCounter$Props>) => {
+const #SimpleCounter# = (props: Partial<#SimpleCounter#Props>) => {
     // hooksセットアップ
     const dispatch = useDispatch();
 
     // fetchでデータ取得する
-    const { loading, error, data } = useFetch('/$SimpleCounter$/$SimpleCounter$');
+    const { loading, error, data } = useFetch('/#SimpleCounter#/#SimpleCounter#');
 
     // stateにデータを反映させる
-    dispatch($SimpleCounter$Module.actions.setData(data));
+    dispatch(#SimpleCounter#Module.actions.setData(data));
 
     // state取得
-    const stateData: $SimpleCounter$State = useSelector((state: any) => state.$simpleCounter$);
+    const stateData: #SimpleCounter#State = useSelector((state: any) => state.#simpleCounter#);
 
-    //// 初回および、サーバ送信データ作成時に実行
-    //// 初期表示兼、登録更新処理
-    //useEffect(() => {
-    //    // ここでfetchする
-    //    fetch('/$SimpleCounter$/メソッド名(Async抜き)', {
-    //        method: 'post',
-    //        body: stateData.formData,
-    //        credentials: 'include'
-    //    }).then(function (response) {
-    //        if (response.status !== 200) {
-    //            alert(`サーバ処理で何か失敗したようです`);
-    //        }
-    //        // JSONメッセージを取り出す
-    //        response.json().then(function (data) {
-    //            // コールバック結果を画面に反映させる
-    //            dispatch($SimpleCounter$Module.actions.setData(data));
-    //        }).catch(function (err) {
-    //            alert(`レスポンスはありませんでした: ${err}`);
-    //        });
-    //    }).catch(function (err) {
-    //        alert(`error: ${err}`);
-    //    });
-    //}, [stateData.postTrigger]); // 第2引数の値が変化すると実行
+    // 初回および、サーバ送信データ作成時に実行
+    // 初期表示兼、登録更新処理
+    useEffect(() => {
+        // ここでfetchする
+        fetch('/#SimpleCounter#/メソッド名(Async抜き)', {
+            method: 'post',
+            body: stateData.formData,
+            credentials: 'include'
+        }).then(function (response) {
+            if (response.status !== 200) {
+                alert(`サーバ処理で何か失敗したようです`);
+            }
+            // JSONメッセージを取り出す
+            response.json().then(function (data) {
+                // コールバック結果を画面に反映させる
+                dispatch(#SimpleCounter#Module.actions.setData(data));
+            }).catch(function (err) {
+                alert(`レスポンスはありませんでした: ${err}`);
+            });
+        }).catch(function (err) {
+            alert(`error: ${err}`);
+        });
+    }, [stateData.postTrigger]); // 第2引数の値が変化すると実行
 
     return (
         <Container>
@@ -184,37 +191,37 @@ const $SimpleCounter$ = (props: Partial<$SimpleCounter$Props>) => {
                 <Col className={'d-flex justify-content-center'}>
                 </Col>
             </Row>
-            <Button className={'btn btn-warning'} disabled={!currentState.isEdited} onClick={() => {
+            <Button className={'btn btn-warning'} disabled={!stateData.isEdited} onClick={() => {
                 if (window.confirm('以上の内容で更新します。よろしいですか？')) {
                     // formdata作ってstateに持たせる、formdataが変化するとuseEffectが反応してPostする。
-                    dispatch($SimpleCounter$Module.actions.makeFormData());
+                    dispatch(#SimpleCounter#Module.actions.makeFormData());
                 }
             }}>確定</Button>
         </Container>
     );
 };
 
-export default $SimpleCounter$;
+export default #SimpleCounter#;
 
 // --------------- NavMenu.tsx --------------- 
 //<NavItem>
-//    <NavLink tag={Link} to='/$simple-counter$'>$SimpleCounter$</NavLink>
+//    <NavLink tag={Link} to='/#simple-counter#'>#SimpleCounter#</NavLink>
 //</NavItem>
 
 // --------------- index.ts --------------- 
-import { $SimpleCounter$Module } from './$SimpleCounter$';
+import { #SimpleCounter#Module } from './#SimpleCounter#';
 
-    $simpleCounter$: $SimpleCounter$Module.reducer,   // △△画面の処理
+    #simpleCounter#: #SimpleCounter#Module.reducer,   // △△画面の処理
 
 // --------------- App.tsx --------------- 
-import $SimpleCounter$ from './components/$SimpleCounter$';
+import #SimpleCounter# from './components/#SimpleCounter#';
 
-<Route path='/$simple-counter$' component={$SimpleCounter$} />
-<Route path='/$simple-counter$' render={props => <$SimpleCounter$ aaaa={34} {...props} />} />
+<Route path='/#simple-counter#' component={#SimpleCounter#} />
+<Route path='/#simple-counter#' render={props => <#SimpleCounter# aaaa={34} {...props} />} />
 
 // -------------------- サーバ側 --------------------
 //    /// <summary>検索結果</summary>
-//    public class $SimpleCounter$Result
+//    public class #SimpleCounter#Result
 //    {
 //        /// <summary>
 //        /// 軸ラベル
