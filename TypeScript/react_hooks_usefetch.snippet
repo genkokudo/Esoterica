@@ -29,7 +29,8 @@
           <Default>simple-counter</Default>
         </Literal>
       </Declarations>
-      <Code Language="TypeScript" Kind="any" Delimiter="$"><![CDATA[
+      <Code Language="TypeScript" Kind="any" Delimiter="$">
+      <![CDATA[
 // -------------------- $SimpleCounter$.ts --------------------
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
@@ -41,8 +42,10 @@ export interface $SimpleCounter$State {
     label: string;
     cost: number[];
     month: string[];
-    // もし、interfaceの配列を使用する場合：正しく読めないので、JSON.parse(JSON.stringify(datasets))で読み直して使用すること
+    // もし、interfaceの配列を使用する場合：正しく読めないことがあるので、JSON.parse(JSON.stringify(datasets))で読み直して使用すること
     datasets: Dataset[];
+    paramater: string;  // 変数例
+    postTrigger: number;// この値が変化したらPostする
 }
 
 // 補助データ
@@ -59,7 +62,9 @@ const $simpleCounter$InitialState: $SimpleCounter$State = {
     label: 'no data',
     cost: [],
     month: [],
-    datasets: []
+    datasets: [],
+    paramater: '',
+    postTrigger: 0
 };
 
 // createSlice() の中では、stateの更新を行っても良い（他ではだめ）
@@ -79,13 +84,28 @@ export let $SimpleCounter$Module = createSlice({
                 //state.label = action.payload.label;
                 //state.cost = action.payload.cost;
                 
-                // または、丸ごとreturnする（ただしAPIと関係ないフィールドが無い場合のみ）
-                // もし画面の入力値などもstateに含んでいると、入力値がstateに反映しなくなりPost時に困る。
                 return action.payload;
             }
-        }
-        // Postする場合はここにFetch処理を追加する。
+        },
+        editParamater: (state, action: PayloadAction<{ id: string, text: string }>) => {
+            // state.datasets[Number(action.payload.id)].cmmpOpsHistoryFieldName = action.payload.text; // 配列の場合はこっち
+            state.paramater = action.payload.text;
+            return state;
+        },
+        // サーバに送信するためのFormData作成
+        // FormDataを変更するとuseEffectによってサーバにPostされる仕組みにしている。
+        makeFormData: (state) => {
+            var formData = new FormData();
+            state.datasets.forEach(dataset => {
+                formData.append('labels', dataset.label);
+                formData.append('borderWidths', dataset.borderWidth);
+                formData.append('backgroundColors', dataset.backgroundColor);
+            });
 
+            state.formData = formData;
+            state.postTrigger++;
+            return state;
+        }
     }
 });
 
@@ -124,8 +144,29 @@ const $SimpleCounter$ = (props: Partial<$SimpleCounter$Props>) => {
     // state取得
     const stateData: $SimpleCounter$State = useSelector((state: any) => state.$simpleCounter$);
 
-    useEffect(() => {
-    });
+    //// 初回および、サーバ送信データ作成時に実行
+    //// 初期表示兼、登録更新処理
+    //useEffect(() => {
+    //    // ここでfetchする
+    //    fetch('/$SimpleCounter$/メソッド名(Async抜き)', {
+    //        method: 'post',
+    //        body: stateData.formData,
+    //        credentials: 'include'
+    //    }).then(function (response) {
+    //        if (response.status !== 200) {
+    //            alert(`サーバ処理で何か失敗したようです`);
+    //        }
+    //        // JSONメッセージを取り出す
+    //        response.json().then(function (data) {
+    //            // コールバック結果を画面に反映させる
+    //            dispatch($SimpleCounter$Module.actions.setData(data));
+    //        }).catch(function (err) {
+    //            alert(`レスポンスはありませんでした: ${err}`);
+    //        });
+    //    }).catch(function (err) {
+    //        alert(`error: ${err}`);
+    //    });
+    //}, [stateData.postTrigger]); // 第2引数の値が変化すると実行
 
     return (
         <Container>
@@ -143,6 +184,12 @@ const $SimpleCounter$ = (props: Partial<$SimpleCounter$Props>) => {
                 <Col className={'d-flex justify-content-center'}>
                 </Col>
             </Row>
+            <Button className={'btn btn-warning'} disabled={!currentState.isEdited} onClick={() => {
+                if (window.confirm('以上の内容で更新します。よろしいですか？')) {
+                    // formdata作ってstateに持たせる、formdataが変化するとuseEffectが反応してPostする。
+                    dispatch($SimpleCounter$Module.actions.makeFormData());
+                }
+            }}>確定</Button>
         </Container>
     );
 };
@@ -183,6 +230,16 @@ import $SimpleCounter$ from './components/$SimpleCounter$';
 //        /// 年月
 //        /// </summary>
 //        public List<string> Month { get; set; }
+//
+//        /// <summary>
+//        /// 任意の形式のデータ
+//        /// </summary>
+//        public List<Data> Datasets { get; set; }
+//
+//        /// <summary>
+//        /// 変数
+//        /// </summary>
+//        public string Parameter { get; set; }
 //    }
 ]]></Code>
     </Snippet>
