@@ -56,11 +56,13 @@ const $AaaaTable$ = () => {
                 );
             }
             list.push(
-                <tr>
-                    {category}
-                    <td className={''}>{stateData.condition[i]}</td>
-                    {rowDara(stateData.values[i])}
-                </tr>
+                <tbody>
+                    <tr>
+                        {category}
+                        <td className={''}>{stateData.condition[i]}</td>
+                        {rowDara(stateData.values[i])}
+                    </tr>
+                </tbody>
             );
         }
         return list;
@@ -75,9 +77,7 @@ const $AaaaTable$ = () => {
                         <tr><th rowSpan={2}>XXXX</th><th rowSpan={2}>YYYY</th><th rowSpan={2} colSpan={2} className={''}>ZZZZ</th><th colSpan={4}>AAAA</th></tr>
                         <tr><th>1</th><th>2</th><th>3</th><th>4</th></tr>
                     </thead>
-                    <tbody>
-                        {records()}
-                    </tbody>
+                    {records()}
                 </table>
             </Container>
         </React.Fragment>

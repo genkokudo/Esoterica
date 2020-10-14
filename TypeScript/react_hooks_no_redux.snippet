@@ -5,9 +5,9 @@
       <SnippetTypes>
         <SnippetType>Expansion</SnippetType>
       </SnippetTypes>
-      <Title>react_hooks_no_redux</Title>
+      <Title>react_hooks_component_simple</Title>
       <Author>Y.Toyoda</Author>
-      <Description>hooksで単純な画面を作成します。Redux不使用。</Description>
+      <Description>hooksで単純な部品（画面）を作成するならこれ！Redux不使用。</Description>
       <HelpUrl>www.microsoft.com</HelpUrl>
       <Shortcut>react_hooks_no_redux</Shortcut>
     </Header>
@@ -28,6 +28,11 @@
 // --------------- $Counter$.tsx --------------- 
 import React, { useState, useEffect } from 'react'
 
+// 引数の型を指定、いらなかったら消す
+type $Counter$Props = {
+    initialCount: number;
+}
+
 /*
  * △△画面の表示
  */
@@ -35,6 +40,7 @@ const $Counter$ = (props: Partial<$Counter$Props>) => {
     // 注意：Hooksは必ず関数の中のトップレベルに書くこと
 
     // React本体に関数コンポーネント専用の保存領域を作成してもらい、そこにあるデータを読み書きできる
+    // 不要（ただの部品とか）ならStateを削除すること。
     const [count, setCount] = useState(0);    // フィールド名、セッター名、初期値
 
     // レンダリングの後に処理を動作させることができます（レンダリングの前はuseLayoutEffect）
@@ -69,18 +75,14 @@ const $Counter$ = (props: Partial<$Counter$Props>) => {
     // DOMから値を取りたい場合はuseRefを使用する
 };
 
-// 引数の型を指定、いらなかったら消す
-type $Counter$Props = {
-    initialCount: number;
-}
+export default $Counter$;
 
 // デフォルト値
 $Counter$.defaultProps = {
     initialCount: 100
 };
 
-export default $Counter$;
-
+// 画面の場合
 // --------------- NavMenu.tsx --------------- 
 //<NavItem>
 //    <NavLink tag={Link} to="/$counter$">$Counter$</NavLink>

@@ -17,19 +17,21 @@
 
         for (var i in stateData.subjects) {
             list.push(
+                <tbody>
                 <tr key={'tr_' + i}>
                     <td>{stateData.subjects[i]}</td>
                     <td className={''}>{Utils.formatNumber(stateData.values[i][0])}</td>
                     <td className={''}>{Utils.formatNumber(stateData.values[i][1])}</td>
                     <td className={''}>{Utils.formatNumber(stateData.values[i][2])}</td>
                 </tr>
+                </tbody>
             );
         }
         return (<table className={'table-risk mb-3'}>
-                <tbody>
-                    <tr><td></td><td>カテゴリー1</td><td>カテゴリー2</td><td>カテゴリー3</td></tr>
-                    {list}
-                </tbody>
+                <thead className={'thead-light csv-th'}>
+                    <th></th><th>カテゴリー1</th><th>カテゴリー2</th><th>カテゴリー3</th>
+                </thead>
+                {list}
             </table>);
     }
 
