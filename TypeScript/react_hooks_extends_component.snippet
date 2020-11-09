@@ -7,7 +7,7 @@
       </SnippetTypes>
       <Title>react_hooks_extends_component</Title>
       <Author>Y.Toyoda</Author>
-      <Description>hooksで既存のコンポーネントを拡張する（Buttonの例）</Description>
+      <Description>hooksで既存のコンポーネントを拡張する（Modalの例）</Description>
       <HelpUrl>www.microsoft.com</HelpUrl>
       <Shortcut>react_hooks_extends_component</Shortcut>
     </Header>
@@ -15,33 +15,60 @@
       <Code Language="TypeScript" Kind="any" Delimiter="$">
         <![CDATA[
 import * as React from 'react';
-import { Button, ButtonProps } from 'reactstrap';
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter, ModalProps } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useImperativeHandle } from 'react';
 
-// 拡張の際、独自の引数を付け加える場合こうする
-interface GeneralButtonProps extends ButtonProps {
-    z?: string; // この例では使ってない
+interface GeneralModalProps extends ModalProps {
+    title?: string; // ヘッダに表示するタイトル、無ければヘッダを表示しない
 }
 
 /*
- * 削除ボタン
- * ※タグで囲んだ値はprops.childrenに入る
+ * 標準のモーダル
  */
-const DeleteButton = (props: Partial<GeneralButtonProps>) => {
+const GeneralModal = (props: Partial<GeneralModalProps>, ref: any) => {
+
+    // モーダルのトグル
+    const [isModal, setIsModal] = React.useState(false);
+
+    useImperativeHandle(ref, () => ({
+        open: () => {
+            setIsModal(!isModal);
+        }
+    }));
+
     return (
-        <Button className={'btn btn-sm btn-danger'} {...props}>
-            <FontAwesomeIcon icon={['fas', 'trash']} />
-            {props.children ? props.children : ' 削除'}
-        </Button >
+        <Modal {...props} isOpen={isModal} toggle={() => { setIsModal(!isModal); }}>
+            {
+                props.title &&
+                <ModalHeader toggle={() => { setIsModal(!isModal); }}>{props.title}</ModalHeader>
+            }
+            <ModalBody style={{ whiteSpace: 'pre-wrap' }}>
+                {props.children ? props.children : ''}
+            </ModalBody>
+            <ModalFooter>
+                <Button color='primary' onClick={() => { setIsModal(!isModal); }}><FontAwesomeIcon icon={['fas', 'window-close']} /> 閉じる</Button>
+            </ModalFooter>
+        </Modal>
     );
 };
+export default React.forwardRef(GeneralModal);
 
-export default DeleteButton;
+//// デフォルト値（必要ならば）
+//GeneralModal.defaultProps = {
+//    title: 'title'
+//};
 
-// デフォルト値
-DeleteButton.defaultProps = {
-    z: '#000000'
-};]]></Code>
+/* 使い方
+const modal = useRef<any>(null);
+<GeneralModal ref={modal} size='lg'>
+    // この例では、このContainerがprops.childrenに入る
+    <Container>
+        <img src={'/MapDetail/Image?id=' + stateData.modalImageId} />
+    </Container>
+</GeneralModal>
+ */
+]]></Code>
     </Snippet>
   </CodeSnippet>
 </CodeSnippets>
