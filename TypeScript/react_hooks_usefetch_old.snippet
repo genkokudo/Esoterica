@@ -5,11 +5,11 @@
       <SnippetTypes>
         <SnippetType>Expansion</SnippetType>
       </SnippetTypes>
-      <Title>react_hooks_usefetch</Title>
+      <Title>react_hooks_usefetch_old</Title>
       <Author>Y.Toyoda</Author>
-      <Description>fetchを使うパターンのナウい画面実装です。</Description>
+      <Description>fetchを使うパターンのナウくない画面実装です。</Description>
       <HelpUrl>www.microsoft.com</HelpUrl>
-      <Shortcut>react_hooks_usefetch</Shortcut>
+      <Shortcut>react_hooks_usefetch_old</Shortcut>
     </Header>
     <Snippet>
       <Declarations>
@@ -38,22 +38,35 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 // サーバのフィールドと自動マッピングされるが、対応するのはPascalとCamelだけで、途中が大文字小文字違いの単語は認識されない
 // 例：LabelとlabelはOK、YMaxとymaxはダメで、yMaxはOK
 export interface #SimpleCounter#State {
-    // サーバからのデータ、この形にサーバのResultクラスを作成する
-    message: string;
-    error: string;
-    data: string[];
+    // 表のデータ
+    label: string;
+    cost: number[];
+    month: string[];
     // もし、interfaceの配列を使用する場合：正しく読めないことがあるので、JSON.parse(JSON.stringify(datasets))で読み直して使用すること
-
+    datasets: Dataset[];
+    paramater: string;  // 変数例
     isEdited: boolean;  // この画面で編集していたらtrue
+    formData: FormData; // サーバ送信のためのデータ
     postTrigger: number;// この値が変化したらPostする
+}
+
+// 補助データ
+interface Dataset {
+    label: string;
+    borderWidth: number;
+    backgroundColor: string;
+    borderColor: string;
+    data: number[];
 }
 
 // 初期値
 const #simpleCounter#InitialState: #SimpleCounter#State = {
-    message: '',
-    error: '',
-    data: [],
-
+    label: 'no data',
+    cost: [],
+    month: [],
+    datasets: [],
+    paramater: '',
+    formData: new FormData(),
     isEdited: false,
     postTrigger: 0
 };
@@ -66,26 +79,37 @@ export let #SimpleCounter#Module = createSlice({
     reducers:   // 処理の定義
     {
         // Fetchしたデータをstateに反映させる
-        setData: (state, action: PayloadAction<#SimpleCounter#StateState>) => {
+        setData: (state, action: PayloadAction<#SimpleCounter#State>) => {
             if (action.payload) {
-                state.message = action.payload.message;
-                state.error = action.payload.error;
-                //state.data = action.payload.data;
+                // stateの更新方法
+                
+                // こうやって、1つずつフィールドを転記すると確実
+                // できれば、Read Onlyなデータはinterfaceにして、入力データやPostデータと分けると良い
+                //state.label = action.payload.label;
+                //state.cost = action.payload.cost;
                 state.isEdited = false;
+                state.formData = new FormData();
+                
+                return action.payload;
             }
+        },
+        editParamater: (state, action: PayloadAction<{ id: string, text: string }>) => {
+            // state.datasets[Number(action.payload.id)].cmmpOpsHistoryFieldName = action.payload.text; // 配列の場合はこっち
+            state.paramater = action.payload.text;
+            state.isEdited = true;
             return state;
         },
-        // 任意の値編集例
-        //editParamater: (state, action: PayloadAction<{ id: string, text: string }>) => {
-        //    // state.datasets[Number(action.payload.id)].cmmpOpsHistoryFieldName = action.payload.text; // 配列の場合はこっち
-        //    state.paramater = action.payload.text;
-        //    state.isEdited = true;
-        //    return state;
-        //},
-        // サーバに送信する
-        // 送信データのセットはtsxに記述する
-        // postTriggerを変更するとサーバにPostされる仕組み
-        submit: (state) => {
+        // サーバに送信するためのFormData作成
+        // FormDataを変更するとuseEffectによってサーバにPostされる仕組みにしている。
+        makeFormData: (state) => {
+            var formData = new FormData();
+            state.datasets.forEach(dataset => {
+                formData.append('labels', dataset.label);
+                formData.append('borderWidths', dataset.borderWidth.toString());
+                formData.append('backgroundColors', dataset.backgroundColor);
+            });
+
+            state.formData = formData;
             state.postTrigger++;
             return state;
         }
@@ -95,7 +119,7 @@ export let #SimpleCounter#Module = createSlice({
 
 // -------------------- #SimpleCounter#.tsx --------------------
 import * as React from 'react';
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { #SimpleCounter#Module, #SimpleCounter#State } from '../store/#SimpleCounter#';
 import { Container, Row, Col, Button } from 'reactstrap';
@@ -118,56 +142,49 @@ const #SimpleCounter# = (props: Partial<#SimpleCounter#Props>) => {
     // hooksセットアップ
     const dispatch = useDispatch();
 
-    //// パラメータを使用する(URLパラメータの場合はuseLocation)
-    //const { id } = useParams();
+    // fetchでデータ取得する
+    const { loading, error, data } = useFetch('/#SimpleCounter#/#SimpleCounter#');
+
+    // stateにデータを反映させる
+    dispatch(#SimpleCounter#Module.actions.setData(data));
 
     // state取得
     const stateData: #SimpleCounter#State = useSelector((state: any) => state.#simpleCounter#);
 
     // 初回および、サーバ送信データ作成時に実行
-    // データ取得するためのパラメータ作成
-    const opts = useMemo(() => {
-        // 編集データを取得する
-        var formData = new FormData();
-        //formData.append('userId', id);
-        if (stateData.postTrigger > 0) {
-            // 初回ではない場合、画面の値を送信する
-            formData.append('testMessage', 'テストメッセージ');
-        }
-        return {
-            method: 'post',
-            body: formData,
-            credentials: 'include'  // 認証情報の入ったリクエストを送る
-        };
-    }, [stateData.postTrigger]);
-
-    const url = useMemo(() => {
-        return '/#SimpleCounter#/Test';
-    }, []); // URL固定なのでdeps無し
-
-    // fetchでデータ取得する
-    const data = useFetch(url, opts).data;
-
-    // 現在の値を画面に反映
+    // 初期表示兼、登録更新処理
     useEffect(() => {
-        // stateにデータを反映させる
-        dispatch(#SimpleCounter#Module.actions.setData(data));
-    }, [data]); // 第2引数の値が変化すると実行
+        // ここでfetchする
+        fetch('/#SimpleCounter#/メソッド名(Async抜き)', {
+            method: 'post',
+            body: stateData.formData,
+            credentials: 'include'
+        }).then(function (response) {
+            if (response.status !== 200) {
+                alert(`サーバ処理で何か失敗したようです`);
+            }
+            // JSONメッセージを取り出す
+            response.json().then(function (data) {
+                // コールバック結果を画面に反映させる
+                dispatch(#SimpleCounter#Module.actions.setData(data));
+            }).catch(function (err) {
+                alert(`レスポンスはありませんでした: ${err}`);
+            });
+        }).catch(function (err) {
+            alert(`error: ${err}`);
+        });
+    }, [stateData.postTrigger]); // 第2引数の値が変化すると実行
 
     return (
         <Container>
-            { !stateData.message && <span>Loading...</span>}
-            {stateData.message &&
+            {loading && <span>Loading...</span>}
+            {error && <span>Failed to fetch</span>}
+            {
+                data &&
                 <div>
-                    <Row>
-                        {stateData.message}
-                    </Row>
-                    <Row>
-                        {stateData.error}
-                    </Row>
-                    <Row>
-                        {stateData.postTrigger}
-                    </Row>
+                    {stateData.label}
+                    {stateData.cost}
+                    {stateData.month}
                 </div>
             }
             <Row>
@@ -176,10 +193,10 @@ const #SimpleCounter# = (props: Partial<#SimpleCounter#Props>) => {
             </Row>
             <Button className={'btn btn-warning'} disabled={!stateData.isEdited} onClick={() => {
                 if (window.confirm('以上の内容で更新します。よろしいですか？')) {
-                    // 値が変化するとuseMemoが反応してPostする。
-                    dispatch(#SimpleCounter#Module.actions.submit());
+                    // formdata作ってstateに持たせる、formdataが変化するとuseEffectが反応してPostする。
+                    dispatch(#SimpleCounter#Module.actions.makeFormData());
                 }
-            }}> 確定 </Button>
+            }}>確定</Button>
         </Container>
     );
 };
@@ -203,28 +220,33 @@ import #SimpleCounter# from './components/#SimpleCounter#';
 <Route path='/#simple-counter#' render={props => <#SimpleCounter# aaaa={34} {...props} />} />
 
 // -------------------- サーバ側 --------------------
-//    /// <summary>処理結果</summary>
+//    /// <summary>検索結果</summary>
 //    public class #SimpleCounter#Result
 //    {
-//        /// <summary>検索した情報</summary> 
-//        public #SimpleCounter#Model[] #SimpleCounter#s { get; set; }
-//        
-//        /// <summary>画面に表示する処理結果</summary> 
-//        public string Message { get; set; }
-//        
-//        /// <summary>画面に表示するエラー</summary> 
-//        public string Error { get; set; }
-//    }
-
-//    /// <summary>△△画面</summary>
-//    [Authorize(Roles = "Administrator")]
-//    public class #SimpleCounter#Controller : ControllerBase
-//    {
-//        public #SimpleCounter#Result Test(string testMessage)
-//        {
-//            var message = testMessage ?? "デフォルトメッセージ";
-//            return new #SimpleCounter#Result { Message = $"これはテストです。{message}", Error = "これはエラーです。" };
-//        }
+//        /// <summary>
+//        /// 軸ラベル
+//        /// </summary>
+//        public string Label { get; set; } = "タイトル";
+//
+//        /// <summary>
+//        /// 金額
+//        /// </summary>
+//        public List<int> Cost { get; set; }
+//
+//        /// <summary>
+//        /// 年月
+//        /// </summary>
+//        public List<string> Month { get; set; }
+//
+//        /// <summary>
+//        /// 任意の形式のデータ
+//        /// </summary>
+//        public List<Data> Datasets { get; set; }
+//
+//        /// <summary>
+//        /// 変数
+//        /// </summary>
+//        public string Parameter { get; set; }
 //    }
 ]]></Code>
     </Snippet>
