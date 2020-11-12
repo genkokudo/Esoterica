@@ -66,7 +66,7 @@ export let #SimpleCounter#Module = createSlice({
     reducers:   // 処理の定義
     {
         // Fetchしたデータをstateに反映させる
-        setData: (state, action: PayloadAction<#SimpleCounter#StateState>) => {
+        setData: (state, action: PayloadAction<#SimpleCounter#State>) => {
             if (action.payload) {
                 state.message = action.payload.message;
                 state.error = action.payload.error;
@@ -113,6 +113,11 @@ interface #SimpleCounter#Props {
  * <Route path='/#simple-counter#' render={props => <#SimpleCounter# aaaa={34} {...props} />}/>
  * ↓こっちで呼んだ場合でもpropsはnullにならず、aaaaとかがnullになってるので判定するとき注意
  * <Route path='/#simple-counter#' component={#SimpleCounter#} />
+ * 
+ * ・パラメータ付ける場合
+ * <Route path='/#simple-counter#/:id' component={#SimpleCounter#} />
+ * ・URLパラメータを使う場合
+ * （アドレス）?id=aaaa&name=bbbb
  */
 const #SimpleCounter# = (props: Partial<#SimpleCounter#Props>) => {
     // hooksセットアップ
