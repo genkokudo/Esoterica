@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>wpf_prism_class_event</Title>
+      <Author>Y.Toyoda</Author>
+      <Description>ViewModel同士でやり取りをするイベント送受信処理のセットです。XxxEvent.csに貼る。</Description>
+      <HelpUrl>www.microsoft.com</HelpUrl>
+      <Shortcut>wpf_prism_class_event</Shortcut>
+    </Header>
+    <Snippet>
+      <Declarations>
+        <Literal>
+          <ID>EventName</ID>
+          <ToolTip>イベント名です</ToolTip>
+          <Default>GinpayMode</Default>
+        </Literal>
+      </Declarations>
+      <Code Language="CSharp" Kind="any" Delimiter="$"><![CDATA[    // TODO:$EventName$Event.cs
+    /// <summary>
+    /// ？？？情報を通知する
+    /// </summary>
+    public class $EventName$Event : PubSubEvent<$EventName$>
+    {
+    }
+
+    public class $EventName$ {
+        /// <summary>
+        /// ？？？ならばtrue
+        /// </summary>
+        public bool Is$EventName$ { get; set; }
+    }
+    // ---------------------------------------------------------------------------------------
+    // TODO:送信元のViewModelの任意の処理 //////////////////////////////////////////////
+    // データを他のモジュールに通知
+    EventAggregator.GetEvent<$EventName$Event>()
+        .Publish(new $EventName$ { Is$EventName$ = Is$EventName$ });
+
+    // ---------------------------------------------------------------------------------------
+        // TODO:送信先のViewModel ///////////////////////////////////////////////////////////
+        /// <summary>
+        /// ？？？情報を受信
+        /// </summary>
+        /// <param name="is$EventName$"></param>
+        private void SetIs$EventName$($EventName$ obj)
+        {
+            Is$EventName$ = obj.Is$EventName$;
+        }
+
+        // TODO:コンストラクタにDIして、以下を記述:IEventAggregator eventAggregator
+        // モジュールからの通知内容を設定
+        eventAggregator.GetEvent<$EventName$Event>().Subscribe(SetIs$EventName$);]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>
