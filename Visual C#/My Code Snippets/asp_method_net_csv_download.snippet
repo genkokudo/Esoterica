@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
   <CodeSnippet Format="1.0.0">
     <Header>
@@ -7,26 +7,19 @@
       </SnippetTypes>
       <Title>asp_method_net_csv_download</Title>
       <Author>Y.Toyoda</Author>
-      <Description>DBからCSVデータを作成しダウンロードします。</Description>
+      <Description>DBからCSVデータを作成しダウンロードします。csvhelper未使用注意。</Description>
       <HelpUrl>www.microsoft.com</HelpUrl>
       <Shortcut>asp_method_net_csv_download</Shortcut>
     </Header>
     <Snippet>
-      <Imports>
-        <Import>
-          <Namespace>System.IO</Namespace>
-        </Import>
-      </Imports>
       <Declarations>
-        <Literal Editable="true">
+        <Literal>
           <ID>Data</ID>
           <ToolTip>テーブル名</ToolTip>
           <Default>Data</Default>
-          <Function>
-          </Function>
         </Literal>
       </Declarations>
-      <Code Language="csharp" Kind="method decl" Delimiter="#"><![CDATA[
+      <Code Language="CSharp" Kind="any" Delimiter="#"><![CDATA[
         // PageModel用
         /// <summary>
         /// CSVデータをダウンロードします。
